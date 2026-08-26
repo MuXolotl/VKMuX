@@ -1,0 +1,473 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия релиза (например 0.1.0)'
+        required: true
+        default: '0.1.0'
+      prerelease:
+        description: 'Отметить как pre-release (бета/тест)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  TZ: Asia/Yekaterinburg
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: 🏷️ Sync version ${{ github.event.inputs.version }}
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ github.event.inputs.version }}
+      is_prerelease: ${{ github.event.inputs.prerelease }}
+    steps:
+      - name: 📥 Checkout private source
+        uses: actions/checkout@v4
+        with:
+          repository: MuXolotl/VKMuX
+          token: ${{ secrets.VKMUX_BOT_TOKEN }}
+          ref: main
+
+      - name: 📝 Validate changelog
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          export VERSION
+          python3 <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          text = Path("CHANGELOG.md").read_text()
+          start_marker = "<!-- vkmux-changelog:start -->"
+          end_marker = "<!-- vkmux-changelog:end -->"
+          start = text.index(start_marker) + len(start_marker)
+          end = text.index(end_marker, start)
+          changes = text[start:end].strip()
+          if not changes:
+              released = re.search(
+                  rf"^## \[{re.escape(version)}\](?: — [^\n]*)?\n\n(.*?)(?=\n\n---)",
+                  text,
+                  flags=re.MULTILINE | re.DOTALL,
+              )
+              changes = released.group(1).strip() if released else ""
+          if not changes:
+              raise SystemExit(
+                  "CHANGELOG.md: нет изменений между маркерами и раздела текущей версии"
+              )
+          Path("release_changes.md").write_text(changes + "\n")
+          PY
+
+      - name: 📦 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 🦀 Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 🔄 Sync version to all files
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          export VERSION
+          echo "Version: $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+          cargo metadata --format-version 1 --no-deps > /dev/null
+          python3 <<'PY'
+          import datetime
+          import os
+          import re
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          path = Path("CHANGELOG.md")
+          text = path.read_text()
+          start_marker = "<!-- vkmux-changelog:start -->"
+          end_marker = "<!-- vkmux-changelog:end -->"
+          start = text.index(start_marker)
+          content_start = start + len(start_marker)
+          end = text.index(end_marker, content_start)
+          content = text[content_start:end].strip()
+          released = re.search(
+              rf"^## \[{re.escape(version)}\](?: — .*)?$",
+              text,
+              flags=re.MULTILINE,
+          )
+          if content:
+              separator = text.index("\n\n---", end + len(end_marker))
+              release = (
+                  f"{start_marker}\n{end_marker}\n\n---\n\n"
+                  f"## [{version}] — {datetime.date.today().isoformat()}\n\n"
+                  f"{content}\n\n---"
+              )
+              text = text[:start] + release + text[separator + len("\n\n---"):]
+              unreleased = re.search(r"^\[Unreleased\]: .+$", text, flags=re.MULTILINE)
+              if unreleased is None:
+                  raise SystemExit("CHANGELOG.md: ссылка Unreleased не найдена")
+              source = "https://github.com/MuXolotl/VKMuX"
+              releases = "https://github.com/MuXolotl/VKMuX-tmp"
+              links = (
+                  f"[Unreleased]: {source}/compare/v{version}...HEAD\n"
+                  f"[{version}]: {releases}/releases/tag/v{version}"
+              )
+              text = text[:unreleased.start()] + links + text[unreleased.end():]
+              path.write_text(text)
+          elif released is None:
+              raise SystemExit("CHANGELOG.md: список изменений пуст")
+          PY
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add CHANGELOG.md package.json package-lock.json Cargo.lock src-tauri/tauri.conf.json src-tauri/Cargo.toml
+          git diff --staged --quiet || git commit -m "chore: release v$VERSION [skip ci]"
+          git tag "v$VERSION" || echo "Tag v$VERSION already exists"
+          git push --follow-tags origin HEAD:main || git push origin HEAD:main
+
+  build:
+    name: 🏗️ Build ${{ matrix.job_name }}
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { platform: ubuntu-22.04,     args: "",                              job_name: linux-amd64 }
+          - { platform: ubuntu-22.04-arm, args: "",                              job_name: linux-arm64 }
+          - { platform: macos-latest,     args: "--target aarch64-apple-darwin", job_name: macos-arm64 }
+          - { platform: macos-latest,     args: "--target x86_64-apple-darwin",  job_name: macos-amd64 }
+          - { platform: windows-latest,   args: "",                              job_name: windows-amd64 }
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: 📥 Checkout private source
+        uses: actions/checkout@v4
+        with:
+          repository: MuXolotl/VKMuX
+          token: ${{ secrets.VKMUX_BOT_TOKEN }}
+          ref: main
+
+      - name: ⬇️ Pull latest
+        run: git pull origin main
+
+      - name: 🔧 Install dependencies (ubuntu)
+        if: ${{ startsWith(matrix.platform, 'ubuntu') }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xdg-utils \
+            libssl-dev \
+            libxdo-dev \
+            libfuse2 \
+            ca-certificates
+          sudo apt-get install -y --reinstall ca-certificates
+          sudo update-ca-certificates -f
+
+      - name: 📦 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: 🦀 Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: 🍎 Cross-compile env (macOS x86_64)
+        if: matrix.job_name == 'macos-amd64'
+        run: |
+          echo "CFLAGS=-arch x86_64"                           >> $GITHUB_ENV
+          echo "CXXFLAGS=-arch x86_64"                         >> $GITHUB_ENV
+          echo "LDFLAGS=-arch x86_64"                          >> $GITHUB_ENV
+          echo "CC_x86_64_apple_darwin=clang -arch x86_64"     >> $GITHUB_ENV
+          echo "CXX_x86_64_apple_darwin=clang++ -arch x86_64"  >> $GITHUB_ENV
+          echo "CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER=clang" >> $GITHUB_ENV
+          echo "MACOSX_DEPLOYMENT_TARGET=10.13"                >> $GITHUB_ENV
+
+      - name: 📦 Install frontend dependencies
+        run: npm ci
+
+      - name: 📁 Create binaries directory
+        run: mkdir -p src-tauri/binaries
+        shell: bash
+
+      - name: 📥 Download FFmpeg Sidecar (Windows)
+        if: matrix.job_name == 'windows-amd64'
+        shell: bash
+        run: |
+          curl -L -o ffmpeg-temp.zip https://github.com/Tyrrrz/FFmpegBin/releases/download/8.1.2/ffmpeg-windows-x64.zip
+          unzip -q ffmpeg-temp.zip
+          mv ffmpeg.exe src-tauri/binaries/ffmpeg-x86_64-pc-windows-msvc.exe
+          rm -f ffmpeg-temp.zip
+
+      - name: 📥 Download FFmpeg Sidecar (Linux x64)
+        if: matrix.job_name == 'linux-amd64'
+        shell: bash
+        run: |
+          curl -L -o ffmpeg-temp.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          tar -xf ffmpeg-temp.tar.xz
+          FFMPEG_DIR=$(find . -maxdepth 1 -type d -name "ffmpeg-*-amd64-static" | head -n 1)
+          mv "$FFMPEG_DIR/ffmpeg" src-tauri/binaries/ffmpeg-x86_64-unknown-linux-gnu
+          chmod +x src-tauri/binaries/ffmpeg-x86_64-unknown-linux-gnu
+          rm -rf "$FFMPEG_DIR" ffmpeg-temp.tar.xz
+
+      - name: 📥 Download FFmpeg Sidecar (Linux ARM64)
+        if: matrix.job_name == 'linux-arm64'
+        shell: bash
+        run: |
+          curl -L -o ffmpeg-temp.tar.xz https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz
+          tar -xf ffmpeg-temp.tar.xz
+          FFMPEG_DIR=$(find . -maxdepth 1 -type d -name "ffmpeg-*-arm64-static" | head -n 1)
+          mv "$FFMPEG_DIR/ffmpeg" src-tauri/binaries/ffmpeg-aarch64-unknown-linux-gnu
+          chmod +x src-tauri/binaries/ffmpeg-aarch64-unknown-linux-gnu
+          rm -rf "$FFMPEG_DIR" ffmpeg-temp.tar.xz
+
+      - name: 📥 Download FFmpeg Sidecar (macOS Intel)
+        if: matrix.job_name == 'macos-amd64'
+        shell: bash
+        run: |
+          curl -L -o ffmpeg-temp.zip https://github.com/Tyrrrz/FFmpegBin/releases/download/8.1.2/ffmpeg-osx-x64.zip
+          unzip -q ffmpeg-temp.zip
+          mv ffmpeg src-tauri/binaries/ffmpeg-x86_64-apple-darwin
+          chmod +x src-tauri/binaries/ffmpeg-x86_64-apple-darwin
+          rm -f ffmpeg-temp.zip
+
+      - name: 📥 Download FFmpeg Sidecar (macOS ARM64)
+        if: matrix.job_name == 'macos-arm64'
+        shell: bash
+        run: |
+          curl -L -o ffmpeg-temp.zip https://github.com/Tyrrrz/FFmpegBin/releases/download/8.1.2/ffmpeg-osx-arm64.zip
+          unzip -q ffmpeg-temp.zip
+          mv ffmpeg src-tauri/binaries/ffmpeg-aarch64-apple-darwin
+          chmod +x src-tauri/binaries/ffmpeg-aarch64-apple-darwin
+          rm -f ffmpeg-temp.zip
+
+      - name: 🏗️ Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          NO_STRIP: "true"
+        with:
+          args: ${{ matrix.args }}
+
+      - name: 📝 Rename artifacts
+        shell: bash
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          case "${{ matrix.job_name }}" in
+            windows-amd64) PLATFORM="windows-x64" ;;
+            linux-amd64)   PLATFORM="linux-x64" ;;
+            linux-arm64)   PLATFORM="linux-arm64" ;;
+            macos-arm64)   PLATFORM="macos-arm64" ;;
+            macos-amd64)   PLATFORM="macos-intel" ;;
+          esac
+          mkdir -p artifacts
+          # Установщики + updater-артефакты (.app.tar.gz для macOS, подписи .sig).
+          # Только из bundle/ — иначе find цепляет сырой бинарник target/release/app.exe.
+          find target -type f -path "*/bundle/*" \
+            \( -name "*.msi" -o -name "*.exe" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.dmg" \
+               -o -name "*.app.tar.gz" -o -name "*.exe.sig" -o -name "*.AppImage.sig" -o -name "*.app.tar.gz.sig" \) \
+            ! -name "*.zip" | while read -r f; do
+            base=$(basename "$f")
+            case "$base" in
+              *.app.tar.gz.sig) ext="app.tar.gz.sig" ;;
+              *.app.tar.gz)     ext="app.tar.gz" ;;
+              *.AppImage.sig)   ext="AppImage.sig" ;;
+              *.exe.sig)        ext="exe.sig" ;;
+              *)                ext="${base##*.}" ;;
+            esac
+            cp "$f" "artifacts/VKMuX-${VERSION}-${PLATFORM}.${ext}"
+            echo "✅ VKMuX-${VERSION}-${PLATFORM}.${ext}"
+          done
+          ls -la artifacts/
+
+      - name: 📝 Build release body
+        shell: bash
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          TAG="v${VERSION}"
+          REPO="${{ github.repository }}"
+          BASE="https://github.com/${REPO}/releases/download/${TAG}"
+
+          awk -v version="$VERSION" '
+            $0 ~ "^## \\[" version "\\]( — .*)?$" { inside=1; found=1; next }
+            inside && /^---$/ { inside=0; exit }
+            inside { print }
+            END {
+              if (!found) exit 2
+              if (inside) exit 3
+            }
+          ' CHANGELOG.md > release_changes.md
+          if [ -z "$(tr -d '[:space:]' < release_changes.md)" ]; then
+            echo "CHANGELOG.md: раздел версии $VERSION пуст" >&2
+            exit 1
+          fi
+
+          {
+            echo "## VKMuX v${VERSION}"
+            echo
+            cat release_changes.md
+          } > updater_notes.md
+
+          cat > release_body.md <<EOF
+          # 🎵 VKMuX v${VERSION}
+
+          **VKMuX** — десктоп-клиент VK Музыки. Работает полностью локально — без внешних серверов.
+
+          🌐 Сайт приложения: https://muxolotl.github.io/VKMuX-tmp
+
+          ## Скачать
+
+          | Система | Файлы |
+          |---|---|
+          | Windows x64 | [EXE](${BASE}/VKMuX-${VERSION}-windows-x64.exe) · [MSI](${BASE}/VKMuX-${VERSION}-windows-x64.msi) |
+          | macOS Apple Silicon | [DMG](${BASE}/VKMuX-${VERSION}-macos-arm64.dmg) |
+          | macOS Intel | [DMG](${BASE}/VKMuX-${VERSION}-macos-intel.dmg) |
+          | Linux x64 | [AppImage](${BASE}/VKMuX-${VERSION}-linux-x64.AppImage) · [DEB](${BASE}/VKMuX-${VERSION}-linux-x64.deb) |
+          | Linux ARM64 | [AppImage](${BASE}/VKMuX-${VERSION}-linux-arm64.AppImage) · [DEB](${BASE}/VKMuX-${VERSION}-linux-arm64.deb) |
+
+          ## Что изменилось
+
+          <!-- vkmux-release-notes:start -->
+          $(cat updater_notes.md)
+          <!-- vkmux-release-notes:end -->
+
+          ## Важно
+
+          ⚠️ Приложение пока без цифровой подписи — при первом запуске подтвердите запуск вручную (SmartScreen на Windows, Gatekeeper на macOS).
+
+          AppImage нужно сделать исполняемым перед запуском:
+
+          \`\`\`bash
+          chmod +x VKMuX-\${VERSION}-linux-x64.AppImage
+          \`\`\`
+          EOF
+
+      - name: 📤 Upload to release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          name: VKMuX v${{ needs.version.outputs.version }}
+          body_path: release_body.md
+          prerelease: ${{ needs.version.outputs.is_prerelease == 'true' }}
+          files: artifacts/*
+
+  updater-manifest:
+    name: 📡 Generate latest.json
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Build & upload latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          TAG="v${VERSION}"
+          REPO="${{ github.repository }}"
+          BASE="https://github.com/${REPO}/releases/download/${TAG}"
+
+          gh release download "$TAG" -R "$REPO" --pattern "*.sig" -D sigs
+          # Пустая строка, если артефакта нет (например, сборка платформы упала)
+          sig() { cat "sigs/VKMuX-${VERSION}-$1" 2>/dev/null || true; }
+
+          BODY=$(gh release view "$TAG" -R "$REPO" --json body -q .body)
+          NOTES=$(printf '%s\n' "$BODY" | awk '
+            /<!-- vkmux-release-notes:start -->/ { inside=1; found=1; next }
+            /<!-- vkmux-release-notes:end -->/ { inside=0; next }
+            inside { print }
+            END {
+              if (!found) exit 2
+              if (inside) exit 3
+            }
+          ')
+          if [ -z "$(printf '%s' "$NOTES" | tr -d '[:space:]')" ]; then
+            echo "В теле релиза нет блока vkmux-release-notes" >&2
+            exit 1
+          fi
+
+          jq -n \
+            --arg version  "$VERSION" \
+            --arg notes    "$NOTES" \
+            --arg pub_date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg base     "$BASE" \
+            --arg v        "VKMuX-${VERSION}" \
+            --arg sig_win        "$(sig windows-x64.exe.sig)" \
+            --arg sig_mac_arm    "$(sig macos-arm64.app.tar.gz.sig)" \
+            --arg sig_mac_intel  "$(sig macos-intel.app.tar.gz.sig)" \
+            --arg sig_linux      "$(sig linux-x64.AppImage.sig)" \
+            --arg sig_linux_arm  "$(sig linux-arm64.AppImage.sig)" \
+            '{
+              version: $version,
+              notes: $notes,
+              pub_date: $pub_date,
+              platforms: ({
+                "windows-x86_64": { signature: $sig_win,       url: ($base + "/" + $v + "-windows-x64.exe") },
+                "darwin-aarch64": { signature: $sig_mac_arm,   url: ($base + "/" + $v + "-macos-arm64.app.tar.gz") },
+                "darwin-x86_64":  { signature: $sig_mac_intel, url: ($base + "/" + $v + "-macos-intel.app.tar.gz") },
+                "linux-x86_64":   { signature: $sig_linux,     url: ($base + "/" + $v + "-linux-x64.AppImage") },
+                "linux-aarch64":  { signature: $sig_linux_arm, url: ($base + "/" + $v + "-linux-arm64.AppImage") }
+              } | with_entries(select(.value.signature != "")))
+            }' > latest.json
+
+          cat latest.json
+          gh release upload "$TAG" latest.json --clobber -R "$REPO"
+
+  site-update:
+    name: 🌐 Update site releases.json
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.VKMUX_BOT_TOKEN }}
+
+      - name: 🔄 Generate releases.json
+        run: |
+          VERSION="${{ needs.version.outputs.version }}"
+          TAG="v${VERSION}"
+          BASE="https://github.com/${{ github.repository }}/releases/download/${TAG}"
+
+          cat > site/releases.json <<EOF
+          {
+            "version": "${VERSION}",
+            "assets": {
+              "windows-installer":     "${BASE}/VKMuX-${VERSION}-windows-x64.msi",
+              "windows-exe":           "${BASE}/VKMuX-${VERSION}-windows-x64.exe",
+              "macos-arm64":           "${BASE}/VKMuX-${VERSION}-macos-arm64.dmg",
+              "macos-intel":           "${BASE}/VKMuX-${VERSION}-macos-intel.dmg",
+              "linux-deb":             "${BASE}/VKMuX-${VERSION}-linux-x64.deb",
+              "linux-appimage":        "${BASE}/VKMuX-${VERSION}-linux-x64.AppImage",
+              "linux-arm64-deb":       "${BASE}/VKMuX-${VERSION}-linux-arm64.deb",
+              "linux-arm64-appimage":  "${BASE}/VKMuX-${VERSION}-linux-arm64.AppImage"
+            }
+          }
+          EOF
+
+      - name: 💾 Commit & push
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add site/releases.json
+          git diff --staged --quiet || git commit -m "chore(site): update releases.json to v${{ needs.version.outputs.version }}"
+          git push origin HEAD:main
