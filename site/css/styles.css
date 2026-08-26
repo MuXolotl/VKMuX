@@ -1,0 +1,289 @@
+/* ===== VKMuX Site Styles ===== */
+/* Premium dark design. Royal Blue accent (#4169e1). */
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+}
+
+body {
+    margin: 0;
+    overflow-x: hidden;
+}
+
+::selection {
+    background: rgba(65, 105, 225, 0.3);
+    color: white;
+}
+
+/* ===== Navbar ===== */
+#navbar {
+    background: rgba(9, 9, 11, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* ===== Scroll animations ===== */
+.js-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.js-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== OS selector buttons ===== */
+.os-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #71717a;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.15s ease;
+}
+
+.os-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #a1a1aa;
+}
+
+.os-btn.active {
+    background: rgba(65, 105, 225, 0.15);
+    border-color: rgba(65, 105, 225, 0.3);
+    color: #a3bffa;
+}
+
+/* ===== Download panels ===== */
+.download-panel.hidden {
+    display: none;
+}
+
+/* ===== Monospace font ===== */
+.font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* ===== Scroll indicator bounce ===== */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+}
+
+/* ===== Download links availability (set by JS) ===== */
+a[data-download][data-ready="false"] {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== Code blocks ===== */
+code {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    font-size: 0.85em;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: #a3bffa;
+    word-break: break-word;
+}
+
+pre {
+    margin: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+pre code {
+    display: block;
+    padding: 0.875rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: #d4d4d8;
+    white-space: pre;
+    word-break: normal;
+    overflow-x: auto;
+}
+
+/* ===== Page transition ===== */
+main {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* ===== Mobile responsive ===== */
+
+/* --- Up to 768px (tablets + large phones) --- */
+@media (max-width: 768px) {
+    .os-btn {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.8125rem;
+    }
+
+    pre code {
+        font-size: 0.7rem;
+        padding: 0.75rem;
+    }
+}
+
+/* --- Up to 640px (phones) --- */
+@media (max-width: 640px) {
+    /* Kill glow backgrounds on mobile */
+    .glow-bg {
+        display: none !important;
+    }
+
+    /* Prevent ANY child from expanding page */
+    * {
+        max-width: 100%;
+    }
+
+    /* Sections must not overflow */
+    section, footer {
+        overflow: hidden;
+    }
+
+    /* Navbar */
+    #navbar .px-6 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Sections */
+    .site-section {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* OS tabs */
+    #osSelector {
+        flex-wrap: wrap;
+        gap: 0.375rem;
+    }
+
+    .os-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        border-radius: 0.625rem;
+        gap: 0.375rem;
+    }
+
+    .os-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Download panels */
+    .download-panel {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+
+    .download-panel .dl-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .download-panel .dl-item {
+        padding: 0.75rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .download-panel .dl-icon {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+    }
+
+    .download-panel .dl-icon svg {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    /* Pre blocks: clip inside parent */
+    pre {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    /* Flex children must be able to shrink */
+    .flex > div {
+        min-width: 0;
+    }
+
+    /* Code blocks */
+    pre code {
+        font-size: 0.6875rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: 0.625rem;
+    }
+
+    /* Footer */
+    footer .flex {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    footer .gap-6 {
+        gap: 0.75rem;
+    }
+}
+
+/* --- Up to 400px (small phones) --- */
+@media (max-width: 400px) {
+    #osSelector {
+        gap: 0.25rem;
+    }
+
+    .os-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.6875rem;
+    }
+
+    .download-panel {
+        padding: 0.75rem !important;
+    }
+
+    .download-panel .dl-item {
+        padding: 0.625rem !important;
+    }
+}

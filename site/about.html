@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/png" href="images/icon.png">
+    <link rel="apple-touch-icon" href="images/icon.png">
+
+    <title>О проекте — VKMuX</title>
+
+    <meta name="description" content="VKMuX — десктоп-клиент VK Музыки. Архитектура, технологии, философия проекта.">
+    <meta name="theme-color" content="#09090b">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased overflow-x-hidden">
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06]" id="navbar">
+        <div class="mx-auto max-w-6xl px-6">
+            <div class="flex h-16 items-center justify-between">
+                <a href="index.html" class="flex items-center gap-2.5 group">
+                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg>
+                    </div>
+                    <span class="text-sm font-semibold tracking-tight text-zinc-200 group-hover:text-white transition-colors">VKMuX</span>
+                </a>
+
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="index.html" class="text-sm text-zinc-500 hover:text-zinc-200 transition-colors">Главная</a>
+                    <a href="download.html" class="text-sm text-zinc-500 hover:text-zinc-200 transition-colors">Скачать</a>
+                    <a href="about.html" class="text-sm text-zinc-200 font-medium transition-colors">О проекте</a>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <a href="https://github.com/MuXolotl/VKMuX" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 hover:bg-white/5 transition-all" title="GitHub">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        <span class="hidden sm:inline">GitHub</span>
+                    </a>
+
+                    <button id="mobileMenuBtn" class="md:hidden p-2 text-zinc-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="mobileMenu" class="hidden md:hidden pb-4 pt-2 border-t border-white/[0.06]">
+                <div class="flex flex-col gap-3">
+                    <a href="index.html" class="text-sm text-zinc-400 hover:text-white transition-colors py-1">Главная</a>
+                    <a href="download.html" class="text-sm text-zinc-400 hover:text-white transition-colors py-1">Скачать</a>
+                    <a href="about.html" class="text-sm text-zinc-200 font-medium transition-colors py-1">О проекте</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- ===== ABOUT ===== -->
+        <section class="site-section pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6 relative">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute top-1/4 right-0 w-[400px] h-[400px] bg-blue-600/[0.04] rounded-full blur-[100px]"></div>
+            </div>
+
+            <div class="max-w-3xl mx-auto relative z-10">
+                <p class="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">О проекте</p>
+                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-6">Что такое VKMuX</h1>
+
+                <div class="space-y-8">
+                    <!-- Description -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-3">Назначение</h2>
+                        <p class="text-sm text-zinc-400 leading-relaxed mb-4">
+                            VKMuX — десктоп-клиент VK Музыки. Название образовано от <strong class="text-zinc-300">VK</strong> + <strong class="text-zinc-300">MuX</strong>olotl. Приложение работает полностью локально — все запросы идут напрямую к VK API с вашего ПК, без промежуточных серверов.
+                        </p>
+                        <p class="text-sm text-zinc-400 leading-relaxed">
+                            Проект создан как самостоятельная альтернатива с открытым исходным кодом. Rust-ядро (<code>vkmux-vk</code>) реализует только необходимые методы VK API — без внешних VK SDK, без ненужных модулей.
+                        </p>
+                    </div>
+
+                    <!-- What it does -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-3">Возможности</h2>
+                        <ul class="text-sm text-zinc-400 leading-relaxed space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Авторизация по логину/паролю (с 2FA и капчей) или по токену</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Библиотека, плейлисты, поиск, рекомендации, популярное</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Текст песни — караоке для синхронизированных, статика для остальных</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Системный трей с управлением воспроизведением</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Мини-плеер у трея (по клику на иконку)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Настраиваемое поведение при закрытии окна (спрашивать / трей / выход)</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-blue-400 mt-1 shrink-0">•</span>
+                                <span>Перемешивание, повтор (все / один), горячие клавиши</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Architecture -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-4">Архитектура</h2>
+                        <div class="space-y-4">
+                            <div class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-blue-500/[0.04] border border-blue-500/10">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-blue-400 font-semibold text-sm">vkmux-vk</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">Rust</span>
+                                </div>
+                                <p class="text-xs text-zinc-500 leading-relaxed">Самостоятельное ядро VK API. Авторизация (Android-эмуляция, GCM, OAuth, 2FA, капча), аудио-методы, protobuf-кодирование, управление токенами. Не зависит от Tauri/GUI.</p>
+                            </div>
+                            <div class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-green-500/[0.04] border border-green-500/10">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-green-400 font-semibold text-sm">src-tauri</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-green-500/10 text-green-400 font-mono">Rust + Tauri 2</span>
+                                </div>
+                                <p class="text-xs text-zinc-500 leading-relaxed">Оболочка десктоп-приложения. Tauri-команды (IPC), системный трей, мини-плеер (поповер), JSON KV-хранилище настроек, обработка оконных событий.</p>
+                            </div>
+                            <div class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-orange-500/[0.04] border border-orange-500/10">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-orange-400 font-semibold text-sm">src</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-orange-500/10 text-orange-400 font-mono">Svelte 5 + TS</span>
+                                </div>
+                                <p class="text-xs text-zinc-500 leading-relaxed">Фронтенд: авторизация, библиотека, плеер, тексты песен, настройки. Svelte 5 runes для реактивного состояния. Vite для сборки.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stack -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-4">Стек</h2>
+                        <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b border-white/[0.06]">
+                                        <th class="text-left py-2 pr-4 text-zinc-500 font-medium">Слой</th>
+                                        <th class="text-left py-2 text-zinc-500 font-medium">Технологии</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-zinc-400">
+                                    <tr class="border-b border-white/[0.03]">
+                                        <td class="py-2 pr-4 text-zinc-300">Ядро VK API</td>
+                                        <td class="py-2"><code>Rust</code> (крейт <code>vkmux-vk</code>, без VK SDK)</td>
+                                    </tr>
+                                    <tr class="border-b border-white/[0.03]">
+                                        <td class="py-2 pr-4 text-zinc-300">Desktop shell</td>
+                                        <td class="py-2"><code>Tauri 2</code></td>
+                                    </tr>
+                                    <tr class="border-b border-white/[0.03]">
+                                        <td class="py-2 pr-4 text-zinc-300">UI</td>
+                                        <td class="py-2"><code>Svelte 5</code> + <code>TypeScript</code> + <code>Vite</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 pr-4 text-zinc-300">Шрифт</td>
+                                        <td class="py-2"><code>Inter Variable</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Project structure -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-4">Структура проекта</h2>
+                        <pre><code>VKMuX/
+├── crates/vkmux-vk/     # Rust-ядро: авторизация, аудио, токены, protobuf
+├── src-tauri/            # Tauri: команды, трей, мини-плеер, настройки
+├── src/
+│   ├── components/       # Svelte-компоненты: плеер, список треков, иконки
+│   ├── lib/              # Состояние, плеер, мост now-playing, VK API обёртка
+│   └── views/            # Страницы: библиотека, авторизация, настройки
+├── docs/                 # Этот сайт (GitHub Pages)
+├── index.html            # Главное окно приложения
+└── mini.html             # Мини-плеер</code></pre>
+                    </div>
+
+                    <!-- Author -->
+                    <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+                        <h2 class="text-lg font-bold text-zinc-200 mb-3">Автор</h2>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white font-bold text-lg">M</div>
+                            <div>
+                                <div class="text-sm font-semibold text-zinc-200">MuXolotl</div>
+                                <div class="text-xs text-zinc-500">Разработка, дизайн, архитектура</div>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <a href="https://github.com/MuXolotl" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-400 hover:underline">GitHub</a>
+                                    <a href="mailto:muxolotl@gmail.com" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">muxolotl@gmail.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-white/[0.06] py-6 sm:py-8 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 text-sm text-zinc-600">
+                <div class="w-5 h-5 rounded bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
+                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19V6l12-3v13"/></svg>
+                </div>
+                <span>© 2025 MuXolotl. Open Source.</span>
+            </div>
+            <div class="flex items-center gap-6 text-xs text-zinc-600">
+                <a href="index.html" class="hover:text-zinc-400 transition-colors">Главная</a>
+                <a href="download.html" class="hover:text-zinc-400 transition-colors">Скачать</a>
+                <a href="about.html" class="hover:text-zinc-400 transition-colors">О проекте</a>
+                <a href="https://github.com/MuXolotl/VKMuX" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-400 transition-colors">GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
