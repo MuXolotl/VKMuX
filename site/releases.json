@@ -1,13 +1,13 @@
 {
   "version": "0.9.0",
   "assets": {
-    "windows-installer":     "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-windows-x64.msi",
-    "windows-exe":           "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-windows-x64.exe",
-    "macos-arm64":           "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-macos-arm64.dmg",
-    "macos-intel":           "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-macos-intel.dmg",
-    "linux-deb":             "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-linux-x64.deb",
-    "linux-appimage":        "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-linux-x64.AppImage",
-    "linux-arm64-deb":       "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-linux-arm64.deb",
-    "linux-arm64-appimage":  "https://github.com/MuXolotl/VKMuX-tmp/releases/download/v0.9.0/VKMuX-0.9.0-linux-arm64.AppImage"
+    "windows-installer":     "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-windows-x64.msi",
+    "windows-exe":           "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-windows-x64.exe",
+    "macos-arm64":           "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-macos-arm64.dmg",
+    "macos-intel":           "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-macos-intel.dmg",
+    "linux-deb":             "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-linux-x64.deb",
+    "linux-appimage":        "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-linux-x64.AppImage",
+    "linux-arm64-deb":       "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-linux-arm64.deb",
+    "linux-arm64-appimage":  "https://github.com/MuXolotl/VKMuX/releases/download/v0.9.0/VKMuX-0.9.0-linux-arm64.AppImage"
   }
 }
