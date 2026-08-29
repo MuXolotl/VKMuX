@@ -117,8 +117,8 @@ jobs:
               unreleased = re.search(r"^\[Unreleased\]: .+$", text, flags=re.MULTILINE)
               if unreleased is None:
                   raise SystemExit("CHANGELOG.md: ссылка Unreleased не найдена")
-              source = "https://github.com/MuXolotl/VKMuX"
-              releases = "https://github.com/MuXolotl/VKMuX-tmp"
+              source = "https://github.com/MuXolotl/VKMuX-dev"
+              releases = "https://github.com/MuXolotl/VKMuX"
               links = (
                   f"[Unreleased]: {source}/compare/v{version}...HEAD\n"
                   f"[{version}]: {releases}/releases/tag/v{version}"
@@ -331,7 +331,7 @@ jobs:
 
           **VKMuX** — десктоп-клиент VK Музыки. Работает полностью локально — без внешних серверов.
 
-          🌐 Сайт приложения: https://muxolotl.github.io/VKMuX-tmp
+          🌐 Сайт приложения: https://muxolotl.github.io/VKMuX
 
           ## Скачать
 
