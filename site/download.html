@@ -7,9 +7,9 @@
     <link rel="icon" type="image/png" href="images/icon.png">
     <link rel="apple-touch-icon" href="images/icon.png">
 
-    <title>Скачать VKMuX</title>
+    <title>Скачать MusiMuX</title>
 
-    <meta name="description" content="Скачать VKMuX — десктоп-клиент VK Музыки для Windows, macOS и Linux.">
+    <meta name="description" content="Скачать MusiMuX — музыкальный десктоп-клиент для Windows, macOS и Linux.">
     <meta name="theme-color" content="#09090b">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -29,7 +29,7 @@
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg>
                     </div>
-                    <span class="text-sm font-semibold tracking-tight text-zinc-200 group-hover:text-white transition-colors">VKMuX</span>
+                    <span class="text-sm font-semibold tracking-tight text-zinc-200 group-hover:text-white transition-colors">MusiMuX</span>
                 </a>
 
                 <div class="hidden md:flex items-center gap-8">
@@ -213,44 +213,6 @@
             </div>
         </section>
 
-        <!-- ===== BUILD FROM SOURCE ===== -->
-        <section class="site-section py-12 sm:py-16 px-4 sm:px-6 border-t border-white/[0.06]">
-            <div class="max-w-3xl mx-auto">
-                <h2 class="text-xl font-bold tracking-tight mb-4">Сборка из исходников</h2>
-                <p class="text-sm text-zinc-500 mb-6">Если предпочитаете собрать сами:</p>
-
-                <div class="space-y-3 text-sm">
-                    <div class="flex items-start gap-3">
-                        <span class="text-blue-400 font-semibold shrink-0 mt-0.5">1.</span>
-                        <div>
-                            <span class="text-zinc-300">Установите</span>
-                            <a href="https://rustup.rs/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Rust</a>
-                            <span class="text-zinc-300">(stable),</span>
-                            <a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Node.js</a>
-                            <span class="text-zinc-300">20+ и</span>
-                            <a href="https://v2.tauri.app/start/prerequisites/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">системные зависимости Tauri</a>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="text-blue-400 font-semibold shrink-0 mt-0.5">2.</span>
-                        <div>
-                            <span class="text-zinc-300">Клонируйте репозиторий:</span>
-                            <pre><code>git clone https://github.com/MuXolotl/VKMuX.git
-cd VKMuX</code></pre>
-                        </div>
-                    </div>
-                    <div class="flex items-start gap-3">
-                        <span class="text-blue-400 font-semibold shrink-0 mt-0.5">3.</span>
-                        <div>
-                            <span class="text-zinc-300">Установите зависимости и соберите:</span>
-                            <pre><code>npm ci          # Зависимости фронтенда
-npm run tauri:dev     # Dev-режим (hot reload)
-npm run tauri:build   # Продакшен-сборка</code></pre>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- ===== FOOTER ===== -->
@@ -260,7 +222,7 @@ npm run tauri:build   # Продакшен-сборка</code></pre>
                 <div class="w-5 h-5 rounded bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19V6l12-3v13"/></svg>
                 </div>
-                <span>© 2025 MuXolotl. Open Source.</span>
+                <span>© 2025 MuXolotl.</span>
             </div>
             <div class="flex items-center gap-6 text-xs text-zinc-600">
                 <a href="index.html" class="hover:text-zinc-400 transition-colors">Главная</a>

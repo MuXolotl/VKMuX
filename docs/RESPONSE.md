@@ -1,8 +1,8 @@
 # VK API — справочник по структурам ответов VK Музыки
 
-Справочник описывает фактическую структуру JSON-ответов VK Музыки, получаемых через внутренний Android API (`8.154`): конверт каталога, блоки, сущности, таксономию типов и раскладок. Документ сверен эталонным слепком `raw/` (956 вызовов, август 2026) и кодом приложения VK Музыки для Android (библиотека `catalogkit`: 28 типизированных видов блоков, 52 раскладки). Архитектурный ориентир для Rust-типов крейта `vkmux-vk` — модели в `src/catalog/` повторяют эту схему один в один, а roundtrip-тест `tests/catalog_roundtrip.rs` гарантирует нулевую потерю полей.
+Справочник описывает фактическую структуру JSON-ответов VK Музыки, получаемых через внутренний Android API (`8.154`): конверт каталога, блоки, сущности, таксономию типов и раскладок. Документ сверен эталонным слепком `raw/` (956 вызовов, август 2026) и кодом приложения VK Музыки для Android (библиотека `catalogkit`: 28 типизированных видов блоков, 52 раскладки). Архитектурный ориентир для Rust-типов крейта `mux-api` — модели в `src/models/` повторяют эту схему один в один, а инлайн-тесты `#[cfg(test)]` (рядом с моделями и в `client.rs`) проверяют разбор реальных форм ответов.
 
-Правила вызова методов (параметры, ошибки, ограничения) — в файле [`VK-API.md`](./VK-API.md).
+Правила вызова методов (параметры, ошибки, ограничения) — в файле [`API.md`](./API.md).
 
 Приложения в конце документа: [Приложение A](#приложение-a-типовые-json-объекты) — типовые JSON-объекты каждой сущности, вырезанные из эталонного слепка без изменений; [Приложение B](#приложение-b-сущности-типов-известных-только-по-коду-приложения) — состав пакетов, которые приложение умеет разбирать, но VK ещё ни разу не прислал.
 
@@ -10,7 +10,7 @@
 
 ## 1. Конверт каталога (главный паттерн)
 
-Методы `catalog.getAudio`, `catalog.getSection`, `catalog.getBlockItems`, `catalog.replaceBlocks`, `catalog.getAudioSearch`, `catalog.getAudioArtist` возвращают данные в формате «конверта». На верхнем уровне ответа располагаются корневые пакеты сущностей, а секции и блоки ссылаются на них по идентификаторам из полей `*_ids`:
+Методы `catalog.getAudio`, `catalog.getSection`, `catalog.getBlockItems`, `catalog.replaceBlocks`, `catalog.getAudioSearch`, `catalog.getAudioArtist`, `catalog.getAudioCurator` возвращают данные в формате «конверта». На верхнем уровне ответа располагаются корневые пакеты сущностей, а секции и блоки ссылаются на них по идентификаторам из полей `*_ids`:
 
 ```json
 {
@@ -39,12 +39,12 @@
 
 | Форма | Методы | Структурные ключи | Пакеты сущностей |
 |---|---|---|---|
-| Корневой каталог | `catalog.getAudio` (без url), `catalog.getAudioSearch`, `catalog.getAudioArtist` | `catalog { default_section, sections }` | пусто, либо пакеты единственной секции |
+| Корневой каталог | `catalog.getAudio` (без url), `catalog.getAudioSearch`, `catalog.getAudioArtist`, `catalog.getAudioCurator` | `catalog { default_section, sections }` | пусто, либо пакеты единственной секции |
 | Детальная секция | `catalog.getSection`, `catalog.getAudio(url)` | `section` | пакеты секции |
 | Одиночный блок | `catalog.getBlockItems` | `block` | пакеты блока |
 | Замены вкладок | `catalog.replaceBlocks` | `replacements { new_next_from, replacements[{ from_block_ids, to_blocks }] }` | пакеты новых блоков |
 
-Пакеты, встреченные в слепке: `audios`, `playlists`, `recommended_playlists`, `links`, `audio_books`, `podcasts`, `podcast_episodes`, `radio_stations`, `audio_stream_mixes`, `audio_content_cards`, `catalog_banners`, `artists`, `artist_videos`, `concerts`, `market_items`, `placeholders`, `texts`, `suggestions`, `groups`, `profiles`, `albums` (всегда пустой). Пакеты, известные приложению, но не присланные ни разу: `curators`, `music_owners`, `videos`, `longreads`, `audio_books_persons`, `podcast_slider_items`, `audio_followings_update_info`.
+Пакеты, встреченные в слепке: `audios`, `playlists`, `recommended_playlists`, `links`, `audio_books`, `podcasts`, `podcast_episodes`, `radio_stations`, `audio_stream_mixes`, `audio_content_cards`, `catalog_banners`, `artists`, `artist_videos`, `concerts`, `market_items`, `placeholders`, `texts`, `suggestions`, `groups`, `profiles`, `albums` (всегда пустой), `curators` (в слепках страниц кураторов), `music_owners` (в слепках страниц владельцев). Пакеты, известные приложению, но не присланные ни разу: `videos`, `longreads`, `audio_books_persons`, `podcast_slider_items`, `audio_followings_update_info`.
 
 ---
 
@@ -99,7 +99,7 @@
 
 | Поле | Тип | Описание |
 |---|---|---|
-| `id` | string | Opaque-идентификатор блока (эфемерен — см. VK-API.md) |
+| `id` | string | Opaque-идентификатор блока (эфемерен — см. API.md) |
 | `data_type` | string | Тип данных блока, см. §3.2 |
 | `layout` | object | Раскладка отрисовки, см. §4 |
 | `title` / `subtitle` | string | Заголовок и подзаголовок блока (часто дублируют `layout.title`) |
@@ -209,11 +209,11 @@
 
 ### 5.1. Типы действий
 
-Присланные слепком: `open_section` (открыть секцию по `section_id`), `open_url` (открыть страницу по `url`; так попадаются скрытые разделы вроде `in_progress`), `play_vk_mix` (запустить микс `mix_id` с опциями `mix_options`), `play_audios_from_block` / `play_shuffled_audios_from_block` (играть треки блока `block_id`), `toggle_artist_subscription` (подписка на артиста `artist_id`), `podcasts_subsection_tabs` (кнопка-контейнер вкладок `options[]`).
+Присланные слепком: `open_section` (открыть секцию по `section_id`), `open_url` (открыть страницу по `url`; так попадаются скрытые разделы вроде `in_progress`), `play_vk_mix` (запустить микс `mix_id` с опциями `mix_options`), `play_audios_from_block` / `play_shuffled_audios_from_block` (играть треки блока `block_id`), `toggle_artist_subscription` (подписка на артиста `artist_id`), `music_follow_owner` (подписка на музыку владельца со страницы его профиля; приходит **без `title`** — как и «перемешать»), `podcasts_subsection_tabs` (кнопка-контейнер вкладок `options[]`).
 
 Встречается в живой выдаче поиска, но не в слепке: `switch_section` — переход на секцию-обёртку (`section_id` задан, `url` — заглушка `https://vk.ru/`). Обёртка содержит те же группы, что и выдача, поэтому переход через неё добавляет лишний экран; см. §6.1 о приоритете `show_all_info`.
 
-Дополнительно известны приложению: `create_playlist`, `edit_items`, `enter_edit_mode`, `reorder_items`, `select_sorting`, `playlists_lists`, `owner_button`, `music_follow_owner`, `toggle_curator_subscription`, `share`, `synth_clear_search_history`, `synth_custom_action`.
+Дополнительно известны приложению: `create_playlist`, `edit_items`, `enter_edit_mode`, `reorder_items`, `select_sorting`, `playlists_lists`, `owner_button`, `toggle_curator_subscription`, `share`, `synth_clear_search_history`, `synth_custom_action`.
 
 **Тип действия лежит во вложенном `action.type`**, на верхнем уровне элемента `actions[]` его нет — там только полезная нагрузка (`section_id`, `title`, …). Чтение `type` с верхнего уровня даёт `null` для всех кнопок.
 
@@ -508,6 +508,19 @@ Web-пакет содержит 32 объекта `type=generated`: кроме �
 
 Стандартный видеообъект VK: `id`, `owner_id`, `title`, `description`, `duration`, `photo`/`image`/`first_frame`, `player`, `direct_url`, `files`, `views`, `local_views`, `likes`, `comments`, `reposts`, `can_like`, `can_comment` и др. (полный набор — в слепке), плюс `main_artists`, `is_explicit`, `release_date`, `track_code`.
 
+### 8.18. Владелец (`music_owners`) и страница владельца
+
+Запись владельца: `{ id, title, subtitle, url, image[] }`. Особенности формы:
+
+- `id` — **опак-хэш** (`e505df9b462eedc470`), не числовой user_id: сматчить запись с `profiles`/`groups` корня по нему нельзя;
+- массив картинок называется **`image`** (ед. число), размеры 50/100/200/400; аватарка приходит только здесь — в `profiles`/`groups` корня она НЕ дублируется, так что поле обязательно к чтению (в части прочей выдачи встречается и `images`);
+
+Страница владельца (профиль друга, сообщество) приходит `catalog.getSection` по opaque-id секции с особенностями:
+
+- `section.url` отсутствует (null) — адрес есть только в записи `music_owners` (`https://vk.ru/<screen_name>`);
+- блок-шапка `music_owners` с одним владельцем и раскладкой `owner_cell`;
+- дальше либо `placeholder` («Музыка скрыта или удалена»), либо кнопки (`music_follow_owner` без подписи; «слушать»/«перемешать» по блоку треков), плейлисты и лента `music_audios` с курсором.
+
 ---
 
 ## 9. Метаданные блоков и события статистики
@@ -670,6 +683,7 @@ preview (3 трека при 20 верхнеуровневых), поэтому 
 | `catalog.replaceBlocks` | Конверт: `replacements` (`new_next_from`, `from_block_ids`, `to_blocks`) + пакеты |
 | `catalog.getAudioSearch` | Пустой запрос — секция `search_suggestions`; с запросом — заглушка `default_section` |
 | `catalog.getAudioArtist` | Заглушка `default_section` страницы исполнителя |
+| `catalog.getAudioCurator` | Заглушка `default_section` страницы куратора |
 | `audio.get` | `{ "count": int, "items": [Audio], "groups": [...], "profiles": [...], "next_from": "..." }` |
 | `audio.getById` | Массив композиций `[Audio]` |
 | `audio.getCount` | Целое число |
@@ -688,7 +702,7 @@ preview (3 трека при 20 верхнеуровневых), поэтому 
 | `execute.getPlaylist` | `{ "audios": [Audio] }`, при `need_playlist=1` + `playlist`, `profiles`, `groups` |
 | `users.get` | Массив профилей `[User]` с `counters` |
 
-Методы, известные по коду приложения, но не покрытые слепком, — в разделе «Каталожные методы приложения» файла [`VK-API.md`](./VK-API.md).
+Методы, известные по коду приложения, но не покрытые слепком, — в разделе «Каталожные методы приложения» файла [`API.md`](./API.md).
 
 ---
 

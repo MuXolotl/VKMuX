@@ -7,9 +7,9 @@
     <link rel="icon" type="image/png" href="images/icon.png">
     <link rel="apple-touch-icon" href="images/icon.png">
 
-    <title>О проекте — VKMuX</title>
+    <title>О проекте — MusiMuX</title>
 
-    <meta name="description" content="VKMuX — десктоп-клиент VK Музыки. Архитектура, технологии, философия проекта.">
+    <meta name="description" content="MusiMuX — музыкальный десктоп-клиент. Архитектура, технологии, философия проекта.">
     <meta name="theme-color" content="#09090b">
 
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -29,7 +29,7 @@
                     <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg>
                     </div>
-                    <span class="text-sm font-semibold tracking-tight text-zinc-200 group-hover:text-white transition-colors">VKMuX</span>
+                    <span class="text-sm font-semibold tracking-tight text-zinc-200 group-hover:text-white transition-colors">MusiMuX</span>
                 </a>
 
                 <div class="hidden md:flex items-center gap-8">
@@ -69,17 +69,17 @@
 
             <div class="max-w-3xl mx-auto relative z-10">
                 <p class="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">О проекте</p>
-                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-6">Что такое VKMuX</h1>
+                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-6">Что такое MusiMuX</h1>
 
                 <div class="space-y-8">
                     <!-- Description -->
                     <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                         <h2 class="text-lg font-bold text-zinc-200 mb-3">Назначение</h2>
                         <p class="text-sm text-zinc-400 leading-relaxed mb-4">
-                            VKMuX — десктоп-клиент VK Музыки. Название образовано от <strong class="text-zinc-300">VK</strong> + <strong class="text-zinc-300">MuX</strong>olotl. Приложение работает полностью локально — все запросы идут напрямую к VK API с вашего ПК, без промежуточных серверов.
+                            MusiMuX — музыкальный десктоп-клиент. Название собрано из <strong class="text-zinc-300">Musi</strong> (music) и имени автора — <strong class="text-zinc-300">MuX</strong>olotl. Приложение работает полностью локально — все запросы идут напрямую к музыкальному сервису с вашего ПК, без промежуточных серверов.
                         </p>
                         <p class="text-sm text-zinc-400 leading-relaxed">
-                            Проект создан как самостоятельная альтернатива с открытым исходным кодом. Rust-ядро (<code>vkmux-vk</code>) реализует только необходимые методы VK API — без внешних VK SDK, без ненужных модулей.
+                            Проект создан как самостоятельная альтернатива. Rust-ядро (<code>mux-api</code>) реализует только необходимые методы API — без внешних SDK, без ненужных модулей.
                         </p>
                     </div>
 
@@ -124,10 +124,10 @@
                         <div class="space-y-4">
                             <div class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-blue-500/[0.04] border border-blue-500/10">
                                 <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-blue-400 font-semibold text-sm">vkmux-vk</span>
+                                    <span class="text-blue-400 font-semibold text-sm">mux-api</span>
                                     <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-mono">Rust</span>
                                 </div>
-                                <p class="text-xs text-zinc-500 leading-relaxed">Самостоятельное ядро VK API. Авторизация (Android-эмуляция, GCM, OAuth, 2FA, капча), аудио-методы, protobuf-кодирование, управление токенами. Не зависит от Tauri/GUI.</p>
+                                <p class="text-xs text-zinc-500 leading-relaxed">Самостоятельное ядро API. Авторизация (Android-эмуляция, GCM, OAuth, 2FA, капча), аудио-методы, protobuf-кодирование, управление токенами. Не зависит от Tauri/GUI.</p>
                             </div>
                             <div class="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-green-500/[0.04] border border-green-500/10">
                                 <div class="flex items-center gap-2 mb-2">
@@ -159,8 +159,8 @@
                                 </thead>
                                 <tbody class="text-zinc-400">
                                     <tr class="border-b border-white/[0.03]">
-                                        <td class="py-2 pr-4 text-zinc-300">Ядро VK API</td>
-                                        <td class="py-2"><code>Rust</code> (крейт <code>vkmux-vk</code>, без VK SDK)</td>
+                                        <td class="py-2 pr-4 text-zinc-300">Ядро API</td>
+                                        <td class="py-2"><code>Rust</code> (крейт <code>mux-api</code>, без внешних SDK)</td>
                                     </tr>
                                     <tr class="border-b border-white/[0.03]">
                                         <td class="py-2 pr-4 text-zinc-300">Desktop shell</td>
@@ -182,14 +182,14 @@
                     <!-- Project structure -->
                     <div class="p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/[0.02] border border-white/[0.06]">
                         <h2 class="text-lg font-bold text-zinc-200 mb-4">Структура проекта</h2>
-                        <pre><code>VKMuX/
-├── crates/vkmux-vk/     # Rust-ядро: авторизация, аудио, токены, protobuf
+                        <pre><code>MusiMuX/
+├── crates/mux-api/     # Rust-ядро: авторизация, аудио, токены, protobuf
 ├── src-tauri/            # Tauri: команды, трей, мини-плеер, настройки
 ├── src/
 │   ├── components/       # Svelte-компоненты: плеер, список треков, иконки
-│   ├── lib/              # Состояние, плеер, мост now-playing, VK API обёртка
+│   ├── lib/              # Состояние, плеер, мост now-playing, API-обёртка
 │   └── views/            # Страницы: библиотека, авторизация, настройки
-├── docs/                 # Этот сайт (GitHub Pages)
+├── site/                 # Сайт проекта (GitHub Pages)
 ├── index.html            # Главное окно приложения
 └── mini.html             # Мини-плеер</code></pre>
                     </div>
@@ -221,7 +221,7 @@
                 <div class="w-5 h-5 rounded bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
                     <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19V6l12-3v13"/></svg>
                 </div>
-                <span>© 2025 MuXolotl. Open Source.</span>
+                <span>© 2025 MuXolotl.</span>
             </div>
             <div class="flex items-center gap-6 text-xs text-zinc-600">
                 <a href="index.html" class="hover:text-zinc-400 transition-colors">Главная</a>

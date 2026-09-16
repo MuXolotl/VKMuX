@@ -1,5 +1,5 @@
 /**
- * VKMuX Site
+ * MusiMuX Site
  *
  * Download links: static releases.json (auto-updated by CI).
  * Download count: GitHub API, 1-hour cache.
@@ -11,7 +11,7 @@
  * ========================================= */
 
 const GITHUB_REPO = 'MuXolotl/VKMuX';
-const DOWNLOADS_CACHE_KEY = 'vkmux_dl_count';
+const DOWNLOADS_CACHE_KEY = 'mux_dl_count';
 const DOWNLOADS_CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 /* =========================================

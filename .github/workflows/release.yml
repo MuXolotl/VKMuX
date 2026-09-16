@@ -34,7 +34,7 @@ jobs:
       - name: 📥 Checkout private source
         uses: actions/checkout@v4
         with:
-          repository: MuXolotl/VKMuX
+          repository: MuXolotl/VKMuX-dev
           token: ${{ secrets.VKMUX_BOT_TOKEN }}
           ref: main
 
@@ -49,8 +49,8 @@ jobs:
 
           version = os.environ["VERSION"]
           text = Path("CHANGELOG.md").read_text()
-          start_marker = "<!-- vkmux-changelog:start -->"
-          end_marker = "<!-- vkmux-changelog:end -->"
+          start_marker = "<!-- mux-changelog:start -->"
+          end_marker = "<!-- mux-changelog:end -->"
           start = text.index(start_marker) + len(start_marker)
           end = text.index(end_marker, start)
           changes = text[start:end].strip()
@@ -71,7 +71,7 @@ jobs:
       - name: 📦 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
 
       - name: 🦀 Install Rust stable
@@ -95,8 +95,8 @@ jobs:
           version = os.environ["VERSION"]
           path = Path("CHANGELOG.md")
           text = path.read_text()
-          start_marker = "<!-- vkmux-changelog:start -->"
-          end_marker = "<!-- vkmux-changelog:end -->"
+          start_marker = "<!-- mux-changelog:start -->"
+          end_marker = "<!-- mux-changelog:end -->"
           start = text.index(start_marker)
           content_start = start + len(start_marker)
           end = text.index(end_marker, content_start)
@@ -153,7 +153,7 @@ jobs:
       - name: 📥 Checkout private source
         uses: actions/checkout@v4
         with:
-          repository: MuXolotl/VKMuX
+          repository: MuXolotl/VKMuX-dev
           token: ${{ secrets.VKMUX_BOT_TOKEN }}
           ref: main
 
@@ -180,7 +180,7 @@ jobs:
       - name: 📦 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: 'npm'
 
       - name: 🦀 Install Rust stable
@@ -321,15 +321,15 @@ jobs:
           fi
 
           {
-            echo "## VKMuX v${VERSION}"
+            echo "## MusiMuX v${VERSION}"
             echo
             cat release_changes.md
           } > updater_notes.md
 
           cat > release_body.md <<EOF
-          # 🎵 VKMuX v${VERSION}
+          # 🎵 MusiMuX v${VERSION}
 
-          **VKMuX** — десктоп-клиент VK Музыки. Работает полностью локально — без внешних серверов.
+          **MusiMuX** — музыкальный десктоп-клиент. Работает полностью локально — без внешних серверов.
 
           🌐 Сайт приложения: https://muxolotl.github.io/VKMuX
 
@@ -345,9 +345,9 @@ jobs:
 
           ## Что изменилось
 
-          <!-- vkmux-release-notes:start -->
+          <!-- mux-release-notes:start -->
           $(cat updater_notes.md)
-          <!-- vkmux-release-notes:end -->
+          <!-- mux-release-notes:end -->
 
           ## Важно
 
@@ -366,7 +366,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ needs.version.outputs.version }}
-          name: VKMuX v${{ needs.version.outputs.version }}
+          name: MusiMuX v${{ needs.version.outputs.version }}
           body_path: release_body.md
           prerelease: ${{ needs.version.outputs.is_prerelease == 'true' }}
           files: artifacts/*
@@ -391,8 +391,8 @@ jobs:
 
           BODY=$(gh release view "$TAG" -R "$REPO" --json body -q .body)
           NOTES=$(printf '%s\n' "$BODY" | awk '
-            /<!-- vkmux-release-notes:start -->/ { inside=1; found=1; next }
-            /<!-- vkmux-release-notes:end -->/ { inside=0; next }
+            /<!-- mux-release-notes:start -->/ { inside=1; found=1; next }
+            /<!-- mux-release-notes:end -->/ { inside=0; next }
             inside { print }
             END {
               if (!found) exit 2
@@ -400,7 +400,7 @@ jobs:
             }
           ')
           if [ -z "$(printf '%s' "$NOTES" | tr -d '[:space:]')" ]; then
-            echo "В теле релиза нет блока vkmux-release-notes" >&2
+            echo "В теле релиза нет блока mux-release-notes" >&2
             exit 1
           fi
 
